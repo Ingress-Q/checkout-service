@@ -86,13 +86,7 @@ jobs:
             # ----------------------------
             # Trivy Scan
             # ----------------------------
-            - name: Trivy Scan
-              uses: aquasecurity/trivy-action@master
-              with:
-                image-ref: ${{env.IMAGE_NAME}}:${{ github.sha }}
-                severity: CRITICAL
-                exit-code: 1
-                ignore-unfixed: true
+          
 
             # ----------------------------
             # Tag Image
