@@ -34,19 +34,21 @@ jobs:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
   # ----------------------------
-  # Setup Go
+  # Setup node
   # ----------------------------
-            - name: Setup Java
-              uses: actions/setup-java@v4
+            - name: Setup Node
+              uses: actions/setup-node@v3
               with:
-                distribution: temurin
-                java-version: "21"
+                node-version: "20"
+            
+            - name: enable corepack
+              run: corepack enable    
 
-            - name: Make Maven Wrapper Executable
-              run: chmod +x mvnw
-
+            - name: Install Dependencies
+              run: yarn install --immutable
+            
             - name: Build Application
-              run: ./mvnw clean package -DskipTests
+              run: yarn build
 
             # ----------------------------
             # Unit Tests
