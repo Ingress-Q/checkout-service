@@ -1,26 +1,31 @@
 # -----------------------
-# Build stage
+# BUILD STAGE
 # -----------------------
 FROM node:20-alpine AS build
 
 WORKDIR /usr/src/app
 
-# IMPORTANT for Yarn 4
+# Yarn 4 support
 RUN corepack enable
 
-COPY package.json yarn.lock ./
+# Copy ONLY dependency files first (IMPORTANT)
+COPY package.json yarn.lock .yarnrc.yml ./
+
+# Install dependencies (this creates Yarn state file)
 RUN yarn install --immutable
 
+# Now copy source
 COPY . .
 
+# Build app
 RUN yarn build
 
-# Safety check (fail build if dist is wrong)
+# Safety check
 RUN test -f dist/main.js
 
 
 # -----------------------
-# Runtime stage
+# RUNTIME STAGE
 # -----------------------
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
