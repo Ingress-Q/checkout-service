@@ -1,36 +1,40 @@
 FROM node:20-alpine AS build
-
 WORKDIR /usr/src/app
-
-# Enable corepack
-RUN corepack enable
-
-# Force Yarn 4 install via corepack (IMPORTANT)
-RUN corepack prepare yarn@4.11.0 --activate
-
-# Copy only dependency files first
-COPY package.json yarn.lock ./
-
-# Install dependencies
-RUN yarn install --immutable
-
-# Copy rest of code
-COPY . .
-
-# Build
+COPY --chown=node:node package*.json ./
+COPY --chown=node:node . .
+RUN yarn install --frozen-lockfile
 RUN yarn build
-
-RUN test -f dist/main.js
+USER node
 
 
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
+# We tell DNF not to install Recommends and Suggests packages, which are
+# weak dependencies in DNF terminology, thus keeping our installed set of
+# packages as minimal as possible.
 RUN dnf --setopt=install_weak_deps=False install -q -y \
-    nodejs20 shadow-utils && dnf clean all
+    nodejs20 \
+    shadow-utils \
+    && \
+    dnf clean all
+
+RUN alternatives --install /usr/bin/node node /usr/bin/node-20 90
+
+ENV APPUSER=appuser
+ENV APPUID=1000
+ENV APPGID=1000
+
+RUN useradd \
+    --home "/app" \
+    --create-home \
+    --user-group \
+    --uid "$APPUID" \
+    "$APPUSER"
 
 WORKDIR /app
+USER appuser
 
-COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 
-CMD ["node", "dist/main.js"]
+ENTRYPOINT [ "node", "dist/main.js" ]
