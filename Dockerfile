@@ -1,6 +1,7 @@
-FROM node:20-alpine AS build
+FROM node:20-slim AS build
 
 WORKDIR /usr/src/app
+
 RUN corepack enable
 
 COPY package.json yarn.lock ./
@@ -10,9 +11,10 @@ COPY . .
 RUN yarn build
 
 
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
+
 RUN corepack enable
 
 COPY package.json yarn.lock ./
