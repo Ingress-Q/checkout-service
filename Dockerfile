@@ -1,8 +1,11 @@
 FROM node:20-alpine AS build
+
 WORKDIR /usr/src/app
 
+RUN corepack enable
+
 COPY package*.json ./
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 COPY . .
 RUN yarn build
@@ -12,10 +15,13 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+RUN corepack enable
+
 COPY package*.json ./
-RUN yarn install --frozen-lockfile --production
+RUN yarn install --immutable --production
 
 COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/node_modules ./node_modules
 
 USER node
 
