@@ -5,9 +5,12 @@ WORKDIR /usr/src/app
 RUN corepack enable
 
 COPY package.json yarn.lock ./
+
+# IMPORTANT: single install only
 RUN yarn install --immutable
 
 COPY . .
+
 RUN yarn build
 
 
@@ -18,10 +21,10 @@ WORKDIR /app
 RUN corepack enable
 
 COPY package.json yarn.lock ./
-RUN yarn install --immutable
+
+RUN yarn install --immutable --production=false
 
 COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/node_modules ./node_modules
 
 USER node
 
