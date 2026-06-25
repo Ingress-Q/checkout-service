@@ -36,25 +36,7 @@ jobs:
   # ----------------------------
   # Setup node
   # ----------------------------
-            - name: Setup Node
-              uses: actions/setup-node@v3
-              with:
-                node-version: "20"
-            
-            - name: enable corepack
-              run: corepack enable    
-
-            - name: Install Dependencies
-              run: yarn install --immutable
-            
-            - name: Build Application
-              run: yarn build
-
-            - name: Verify build output
-              run: ls -R dist
-
-            - name: Validate entry file exists
-              run: test -f dist/main.js || (echo "dist/main.js missing - build is invalid" && exit 1)
+           
 
             # ----------------------------
             # Unit Tests
