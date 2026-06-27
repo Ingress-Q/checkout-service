@@ -51,7 +51,9 @@ livenessProbe:
     path: /health
     port: 8080
   initialDelaySeconds: 30
-  periodSeconds: 15ingress:
+  periodSeconds: 15
+  
+ingress:
   enabled: true
   path: /checkout
   healthCheckPath: /health
